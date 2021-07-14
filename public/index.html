@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>URL Shortener</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+
+<body>
+  <!-- Generate Short URL -->
+  <div data-page="generate" class="hidden">
+    <header class="header">
+      <p>URL Shortener</p>
+    </header>
+    <main class="main">
+      <p>Paste a valid link and click on the button to generate a shorter link that you can share and it will redirect
+        to
+        the original link.</p>
+
+      <div>
+        <input type="text" name="link" />
+        <button class="submit-button">Generate</button>
+      </div>
+
+      <p class="no-link-text">Once the shorter link is generated it will be displayed here.</p>
+      <p class="show-link hidden"></p>
+    </main>
+    <footer class="footer">
+      <p>Made with boredom by Antonio Villagra De La Cruz</p>
+      <p>Source Code</p>
+    </footer>
+  </div>
+  <!--/Generate Short URL -->
+
+  <!-- Redirect -->
+  <div data-page="redirect" class="hidden">
+    <p>Redirecting you ...</p>
+  </div>
+  <!--/Redirect -->
+
+  <script src="/static/app.js"></script>
+</body>
+
+</html>
