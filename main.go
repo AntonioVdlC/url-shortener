@@ -1,12 +1,17 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
+	"io/ioutil"
 	"log"
 	"math/rand"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/joho/godotenv"
 )
 
 func init() {
@@ -14,6 +19,41 @@ func init() {
 }
 
 func main() {
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	dbpool, err := pgxpool.Connect(context.Background(), os.Getenv("DATABASE_URL"))
+	if err != nil {
+		log.Fatalf("Unable to connect to database: %v\n", err)
+	}
+
+	var initDone bool
+	initCheck, err := ioutil.ReadFile("db/init-check.sql")
+	if err != nil {
+		log.Fatalf("Error while reading file 'db/init.sql': %v\n", err)
+	}
+	err = dbpool.QueryRow(context.Background(), string(initCheck)).Scan(&initDone)
+	if err != nil {
+		log.Printf("Error while checking table 'links': %v\n", err)
+		initDone = false
+	}
+
+	if !initDone {
+		log.Println("Initialising tables in database ...")
+		initSQL, err := ioutil.ReadFile("db/init.sql")
+		if err != nil {
+			log.Fatalf("Error while reading file 'db/init.sql': %v\n", err)
+		}
+
+		_, err = dbpool.Exec(context.Background(), string(initSQL))
+		if err != nil {
+			log.Fatalf("Error execurint init.sql: %v\n", err)
+		}
+	}
+
+	dbpool.Close()
+
 	http.HandleFunc("/api/generate", generateHandler)
 	http.HandleFunc("/api/redirect", redirectHandler)
 
@@ -97,6 +137,7 @@ func redirectHandler(w http.ResponseWriter, r *http.Request) {
 
 // https://stackoverflow.com/a/31832326
 const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
 func RandomString(n int) string {
 	b := make([]byte, n)
 	for i := range b {
