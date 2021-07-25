@@ -29,11 +29,11 @@ func main() {
 	}
 
 	var initDone bool
-	initCheck, err := ioutil.ReadFile("db/init-check.sql")
+	initCheckSQL, err := ioutil.ReadFile("db/init-check.sql")
 	if err != nil {
-		log.Fatalf("Error while reading file 'db/init.sql': %v\n", err)
+		log.Fatalf("Error while reading file 'db/init-check.sql': %v\n", err)
 	}
-	err = dbpool.QueryRow(context.Background(), string(initCheck)).Scan(&initDone)
+	err = dbpool.QueryRow(context.Background(), string(initCheckSQL)).Scan(&initDone)
 	if err != nil {
 		log.Printf("Error while checking table 'links': %v\n", err)
 		initDone = false
@@ -48,7 +48,7 @@ func main() {
 
 		_, err = dbpool.Exec(context.Background(), string(initSQL))
 		if err != nil {
-			log.Fatalf("Error execurint init.sql: %v\n", err)
+			log.Fatalf("Error executing init.sql: %v\n", err)
 		}
 	}
 
@@ -98,10 +98,34 @@ func generateHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		// FIXME: check link is safe
+		isSafe := true
+		isSageNextCheckAt := time.Now().Add(24 * time.Hour)
 		hash := GenerateHash()
 
-		// TODO: Check for hash collisions?
-		// TODO: Save hash and link in db
+		log.Printf("Saving link '%s' with hash '%s'", link, hash)
+
+		dbpool, err := pgxpool.Connect(context.Background(), os.Getenv("DATABASE_URL"))
+		if err != nil {
+			log.Printf("Unable to connect to database: %v\n", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		defer dbpool.Close()
+
+		insertLinkSQL, err := ioutil.ReadFile("db/insert-link.sql")
+		if err != nil {
+			log.Printf("Error while reading file 'db/insert-link.sql': %v\n", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		_, err = dbpool.Exec(context.Background(), string(insertLinkSQL), hash, link, isSafe, isSageNextCheckAt)
+		if err != nil {
+			log.Printf("Error executing insert-link.sql: %v\n", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
@@ -120,12 +144,30 @@ func redirectHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		log.Printf("Redirecting from hash: %s", hash)
+		log.Printf("Redirecting from hash: '%s'", hash)
 
-		// TODO: get link corresponding to hash
-		link := "https://www.google.com"
+		dbpool, err := pgxpool.Connect(context.Background(), os.Getenv("DATABASE_URL"))
+		if err != nil {
+			log.Printf("Unable to connect to database: %v\n", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		defer dbpool.Close()
 
-		// FIXME: error handling
+		selectLinkSQL, err := ioutil.ReadFile("db/select-link.sql")
+		if err != nil {
+			log.Printf("Error while reading file 'db/select-link.sql': %v\n", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		var link string
+		err = dbpool.QueryRow(context.Background(), string(selectLinkSQL), hash).Scan(&link)
+		if err != nil {
+			log.Printf("Link not found for hash: '%s'. Error: %v\n", hash, err)
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
