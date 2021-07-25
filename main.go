@@ -3,9 +3,15 @@ package main
 import (
 	"encoding/json"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
+	"time"
 )
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
 
 func main() {
 	http.HandleFunc("/api/generate", generateHandler)
@@ -51,12 +57,12 @@ func generateHandler(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		
-		// TODO: Generate hash for link
-		hash := "blabla"
 
+		hash := GenerateHash()
+
+		// TODO: Check for hash collisions?
 		// TODO: Save hash and link in db
-		
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
 		w.Write([]byte(`{"hash":"` + hash + `"}`))
@@ -83,8 +89,27 @@ func redirectHandler(w http.ResponseWriter, r *http.Request) {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"link": "`+ link +`"}`))
+		w.Write([]byte(`{"link": "` + link + `"}`))
 	default:
 		w.WriteHeader(http.StatusNotImplemented)
 	}
+}
+
+// https://stackoverflow.com/a/31832326
+const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+func RandomString(n int) string {
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = letters[rand.Int63()%int64(len(letters))]
+	}
+	return string(b)
+}
+
+func GenerateHash() string {
+	// TODO: dynamically chose the minimum number of characters depending
+	// on the number of links stored in the database?
+	// 4 => ~7M
+	// 5 => ~380M
+	// 6 => ~19B
+	return RandomString(5)
 }

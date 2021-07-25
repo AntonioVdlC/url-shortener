@@ -23,7 +23,10 @@ function ignite() {
         return;
       }
 
-      fetch("/api/generate", { method: "POST", body: { link } })
+      fetch("/api/generate", {
+        method: "POST",
+        body: JSON.stringify({ link }),
+      })
         .then((res) => {
           // FIXME: error handling
           if (!res.ok) {
