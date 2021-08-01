@@ -23,7 +23,7 @@ function ignite() {
         return;
       }
 
-      fetch("/api/generate", {
+      fetch("/api/link", {
         method: "POST",
         body: JSON.stringify({ link }),
       })
@@ -62,7 +62,7 @@ function ignite() {
 
     // TODO: if request too slow, display waiting screen?
 
-    fetch(`/api/redirect?hash=${hash}`, { method: "GET" })
+    fetch(`/api/link?hash=${hash}`, { method: "GET" })
       .then((res) => {
         // FIXME: error handling
         if (!res.ok) {
