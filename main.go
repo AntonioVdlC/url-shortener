@@ -11,6 +11,7 @@ import (
 
 	"url-shortener/api"
 	"url-shortener/db"
+	"url-shortener/cron"
 )
 
 func init() {
@@ -20,7 +21,8 @@ func init() {
 		log.Println("Error loading .env file")
 	}
 
-	db.InitDB()
+	db.Init()
+	cron.Init()
 }
 
 func main() {
