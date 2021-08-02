@@ -36,17 +36,14 @@ func CreateHash(r *http.Request) (int, string) {
 		return http.StatusBadRequest, ""
 	}
 
-	// FIXME: check link is safe
-	isSafe := true
-
-	if !isSafe {
-		return http.StatusForbidden, ""
+	isValid, message := utils.IsValidUrl(link)
+	if !isValid {
+		return http.StatusForbidden, `{"message":"` + message + `" }`
 	}
 
 	hash := generateHash()
 
 	log.Printf("Saving link '%s' with hash '%s'", link, hash)
-
 	if err := db.InsertLink(hash, link); err != nil {
 		log.Printf("Error executing insert-link.sql: %v\n", err)
 		return http.StatusInternalServerError, ""

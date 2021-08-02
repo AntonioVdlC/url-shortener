@@ -10,8 +10,8 @@ import (
 	"github.com/joho/godotenv"
 
 	"url-shortener/api"
-	"url-shortener/db"
 	"url-shortener/cron"
+	"url-shortener/db"
 )
 
 func init() {
