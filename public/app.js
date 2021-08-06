@@ -12,8 +12,18 @@ function ignite() {
     const $linkInput = document.querySelector(`input[name="link"]`);
     const $submitButton = document.querySelector(".submit-button");
 
+    const $errorMessage = document.querySelector(".error-message");
+
     const $noLinkText = document.querySelector(".no-link-text");
     const $showLink = document.querySelector(".show-link");
+
+    const $copiedToClipboard = document.querySelector(".copied-to-clipboard");
+
+    $linkInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        $submitButton.click();
+      }
+    });
 
     $submitButton.addEventListener("click", () => {
       const link = $linkInput.value;
@@ -23,23 +33,52 @@ function ignite() {
         return;
       }
 
+      $submitButton.innerText = "...";
+      $submitButton.disabled = true;
+
       fetch("/api/link", {
         method: "POST",
         body: JSON.stringify({ link }),
       })
         .then((res) => {
-          // FIXME: error handling
-          if (!res.ok) {
-            throw new Error();
+          if (res.ok) {
+            return res.json();
           }
 
-          return res.json();
+          res.json().then(({ message }) => {
+            $errorMessage.innerText = message || "Error";
+            $errorMessage.classList.remove("opaque");
+
+            $submitButton.innerText = "Error";
+            $submitButton.classList.add("error");
+
+            setTimeout(() => {
+              $errorMessage.classList.add("opaque");
+
+              $submitButton.innerText = "Generate";
+              $submitButton.classList.remove("error");
+              $submitButton.disabled = false;
+            }, 2000);
+          });
         })
         .then((data) => {
           const hash = data.hash;
 
           if (!hash) {
-            // FIXME: error handling
+            $errorMessage.innerText = "Oops, an error has occured.";
+            $errorMessage.classList.remove("opaque");
+
+            $submitButton.innerText = "Error";
+            $submitButton.classList.add("error");
+
+            setTimeout(() => {
+              $errorMessage.classList.add("opaque");
+
+              $submitButton.innerText = "Generate";
+              $submitButton.classList.remove("error");
+              $submitButton.disabled = false;
+            }, 2000);
+
             return;
           }
 
@@ -47,7 +86,20 @@ function ignite() {
           $showLink.classList.remove("hidden");
 
           $showLink.innerText = href + hash;
+
+          $submitButton.innerText = "Generated";
+          $submitButton.classList.add("done");
         });
+    });
+
+    $showLink.addEventListener("click", () => {
+      navigator.clipboard.writeText($showLink.innerText).then(() => {
+        $copiedToClipboard.classList.remove("opaque");
+
+        setTimeout(() => {
+          $copiedToClipboard.classList.add("opaque");
+        }, 2000);
+      });
     });
   }
   // ---

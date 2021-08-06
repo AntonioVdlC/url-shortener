@@ -16,21 +16,26 @@
       <p>URL Shortener</p>
     </header>
     <main class="main">
-      <p>Paste a valid link and click on the button to generate a shorter link that you can share and it will redirect
-        to
-        the original link.</p>
+      <p class="intro">
+        Paste a valid link and click on the button to generate a shorter link that you can share and it will redirect to
+        the original link.
+      </p>
 
-      <div>
-        <input type="text" name="link" />
-        <button class="submit-button">Generate</button>
-      </div>
+      <input class="input-link" type="text" name="link" />
 
-      <p class="no-link-text">Once the shorter link is generated it will be displayed here.</p>
+      <p class="error-message opaque"></p>
+
+      <button class="submit-button">Generate</button>
+
+      <p class="no-link-text">Once the shorter link is generated, it will be displayed here.</p>
       <p class="show-link hidden"></p>
+      <p class="copied-to-clipboard opaque">Link copied to clipboard.</p>
     </main>
     <footer class="footer">
-      <p>Made with boredom by Antonio Villagra De La Cruz</p>
-      <p>Source Code</p>
+      <p>Made with <span
+          class="boredom"><span>b</span><span>o</span><span>r</span><span>e</span><span>d</span><span>o</span><span>m</span></span>
+        by Antonio Villagra De La Cruz</p>
+      <p><a href="https://github.com/AntonioVdlC/url-shortener">Source</a></p>
     </footer>
   </div>
   <!--/Generate Short URL -->
