@@ -82,7 +82,8 @@ p {
 .main .error-message.opaque {
   transform: translateY(8px);
 }
-.main .submit-button {
+.main .btn-primary,
+.main .btn-error {
   margin-top: 4vh;
   outline: none;
   border: none;
@@ -98,31 +99,50 @@ p {
   transition: all 0.3s ease-in;
   cursor: pointer;
 }
-.main .submit-button.error {
+.main .btn-primary.error {
   background-color: rgb(var(--color-error));
   color: rgb(var(--color-white));
   cursor: default;
 }
-.main .submit-button.done {
+.main .btn-primary.done {
   background-color: rgb(var(--color-primary));
   color: rgb(var(--color-white));
   cursor: default;
 }
-.main .submit-button:hover:enabled,
-.main .submit-button:focus:enabled {
+.main .btn-primary:hover:enabled,
+.main .btn-primary:focus:enabled,
+.main .btn-error:hover:enabled,
+.main .btn-error:focus:enabled {
+  transform: translateY(-5px);
+}
+.main .btn-primary:hover:enabled,
+.main .btn-primary:focus:enabled {
   background-color: rgb(var(--color-primary));
   color: rgb(var(--color-white));
   box-shadow: 0px 16px 21px rgb(var(--color-primary) / 30%);
-  transform: translateY(-5px);
+}
+.main .btn-error:hover:enabled,
+.main .btn-error:focus:enabled {
+  background-color: rgb(var(--color-error));
+  color: rgb(var(--color-white));
+  box-shadow: 0px 16px 21px rgb(var(--color-error) / 30%);
+}
+.main .btn-group {
+  margin-top: 5vh;
 }
 .main .no-link-text {
   margin-top: 20vh;
 }
 .main .show-link {
-  margin-top: 20vh;
+  margin-top: 12vh;
   font-size: 2rem;
   text-decoration: underline solid rgb(var(--color-primary)) 3px;
   cursor: pointer;
+  overflow-wrap: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 .main .copied-to-clipboard {
   font-size: 1rem;
@@ -134,7 +154,7 @@ p {
   border-radius: 42px;
   transition: all 0.8s;
 }
-.copied-to-clipboard.opaque {
+.main .copied-to-clipboard.opaque {
   transform: translateY(8px);
 }
 
@@ -216,12 +236,18 @@ p {
     padding-left: 1rem;
     padding-right: 1rem;
   }
-  .main .submit-button {
-    background-color: rgb(var(--color-primary));
+  .main .btn-primary,
+  .main .btn-error {
     color: rgb(var(--color-white));
     font-size: 1.25rem;
     letter-spacing: normal;
     width: 75%;
+  }
+  .main .btn-primary {
+    background-color: rgb(var(--color-primary));
+  }
+  .main .btn-error {
+    background-color: rgb(var(--color-error));
   }
   .main .show-link {
     margin-top: 10vh;

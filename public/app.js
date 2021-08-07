@@ -9,15 +9,19 @@ function ignite() {
 
   // Generate
   if (page === "generate") {
-    const $linkInput = document.querySelector(`input[name="link"]`);
-    const $submitButton = document.querySelector(".submit-button");
+    const $linkInput = document.querySelector(`[data-id="input-link"]`);
+    const $submitButton = document.querySelector(`[data-id="submit-button"]`);
 
-    const $errorMessage = document.querySelector(".error-message");
+    const $errorMessage = document.querySelector(
+      `[data-id="generate-error-message]`
+    );
 
-    const $noLinkText = document.querySelector(".no-link-text");
-    const $showLink = document.querySelector(".show-link");
+    const $noLinkText = document.querySelector(`[data-id="no-link-text"]`);
+    const $showLink = document.querySelector(`[data-id="show-link"]`);
 
-    const $copiedToClipboard = document.querySelector(".copied-to-clipboard");
+    const $copiedToClipboard = document.querySelector(
+      `[data-id="copied-to-clipboard"]`
+    );
 
     $linkInput.addEventListener("keypress", (e) => {
       if (e.key === "Enter") {
@@ -106,32 +110,57 @@ function ignite() {
 
   // Redirect
   if (page === "redirect") {
+    const $fullLink = document.querySelector(`[data-id="show-full-link"]`);
+
+    const $cancelButton = document.querySelector(`[data-id="cancel-button"]`);
+    const $continueButton = document.querySelector(
+      `[data-id="continue-button"]`
+    );
+
+    const $errorMessage = document.querySelector(
+      `[data-id="redirect-error-message"]`
+    );
+
     const hash = pathname.slice(1);
     if (!hash) {
-      // FIXME: error handling
       return;
     }
 
-    // TODO: if request too slow, display waiting screen?
+
+    $cancelButton.addEventListener("click", () => {
+      // Note: we cannot close the current window, so the next best thing is to go back
+      window.history.go(-1);
+    });
 
     fetch(`/api/link?hash=${hash}`, { method: "GET" })
       .then((res) => {
-        // FIXME: error handling
-        if (!res.ok) {
-          throw new Error();
+        if (res.ok) {
+          return res.json();
         }
 
-        return res.json();
+        $errorMessage.innerText = "Link not found.";
+        $errorMessage.classList.remove("opaque");
+
+        $cancelButton.innerText = "Go back";
+        $continueButton.classList.add("hidden");
       })
       .then((data) => {
         const link = data.link;
 
         if (!link) {
-          // FIXME: error handling
+          $errorMessage.innerText = "Link not found.";
+          $errorMessage.classList.remove("opaque");
+
+          $cancelButton.innerText = "Go back";
+          $continueButton.classList.add("hidden");
           return;
         }
 
-        window.location.replace(link);
+        $fullLink.innerText = link;
+
+        $continueButton.addEventListener("click", () => {
+          window.location.replace(link);
+        });
       });
   }
   // ---

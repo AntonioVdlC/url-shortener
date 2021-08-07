@@ -10,41 +10,51 @@
 </head>
 
 <body>
-  <!-- Generate Short URL -->
-  <div data-page="generate" class="hidden">
-    <header class="header">
-      <p>URL Shortener</p>
-    </header>
-    <main class="main">
+  <header class="header">
+    <p>URL Shortener</p>
+  </header>
+
+  <main class="main">
+    <!-- Generate Short URL -->
+    <div data-page="generate" class="hidden">
       <p class="intro">
         Paste a valid link and click on the button to generate a shorter link that you can share and it will redirect to
         the original link.
       </p>
 
-      <input class="input-link" type="text" name="link" />
+      <input class="input-link" type="text" name="link" data-id="input-link" />
 
-      <p class="error-message opaque"></p>
+      <p class="error-message opaque" data-id="generate-error-message"></p>
 
-      <button class="submit-button">Generate</button>
+      <button class="btn-primary" data-id="submit-button">Generate</button>
 
-      <p class="no-link-text">Once the shorter link is generated, it will be displayed here.</p>
-      <p class="show-link hidden"></p>
-      <p class="copied-to-clipboard opaque">Link copied to clipboard.</p>
-    </main>
-    <footer class="footer">
-      <p>Made with <span
-          class="boredom"><span>b</span><span>o</span><span>r</span><span>e</span><span>d</span><span>o</span><span>m</span></span>
-        by Antonio Villagra De La Cruz</p>
-      <p><a href="https://github.com/AntonioVdlC/url-shortener">Source</a></p>
-    </footer>
-  </div>
-  <!--/Generate Short URL -->
+      <p class="no-link-text" data-id="no-link-text">Once the shortened link is generated, it will be displayed here.
+      </p>
+      <p class="show-link hidden" data-id="show-link"></p>
+      <p class="copied-to-clipboard opaque" data-id="copied-to-clipboard">Link copied to clipboard.</p>
+    </div>
+    <!--/Generate Short URL -->
 
-  <!-- Redirect -->
-  <div data-page="redirect" class="hidden">
-    <p>Redirecting you ...</p>
-  </div>
-  <!--/Redirect -->
+    <!-- Redirect -->
+    <div data-page="redirect" class="hidden">
+      <p class="intro">You are being redirected to</p>
+      <p class="show-link" data-id="show-full-link"></p>
+      <p class="error-message opaque" data-id="redirect-error-message"></p>
+
+      <div class="btn-group">
+        <button class="btn-error" data-id="cancel-button">Cancel</button>
+        <button class="btn-primary" data-id="continue-button">Continue</button>
+      </div>
+    </div>
+    <!--/Redirect -->
+  </main>
+
+  <footer class="footer">
+    <p>Made with <span
+        class="boredom"><span>b</span><span>o</span><span>r</span><span>e</span><span>d</span><span>o</span><span>m</span></span>
+      by Antonio Villagra De La Cruz</p>
+    <p><a href="https://github.com/AntonioVdlC/url-shortener">Source</a></p>
+  </footer>
 
   <script src="/static/app.js"></script>
 </body>
