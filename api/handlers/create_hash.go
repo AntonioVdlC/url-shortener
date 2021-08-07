@@ -9,7 +9,6 @@ import (
 	"url-shortener/utils"
 )
 
-
 type body struct {
 	Link string
 }
