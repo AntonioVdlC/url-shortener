@@ -9,6 +9,7 @@ import (
 	"url-shortener/api/handlers"
 )
 
+
 func TestCreateHashEmptyBody(t *testing.T) {
 	body, _ := json.Marshal(map[string]interface{}{})
 	req, _ := http.NewRequest("POST", "/", bytes.NewReader(body))
@@ -49,16 +50,16 @@ func TestCreateHashInvalidLink(t *testing.T) {
 	}
 }
 
-func TestCreateHashErrorInsert(t *testing.T) {
+func TestCreateHashInvalidURL(t *testing.T) {
 	body, _ := json.Marshal(map[string]interface{}{
-		"link": "https://error.com",
+		"link": "not-a-link",
 	})
 	req, _ := http.NewRequest("POST", "/", bytes.NewReader(body))
 
 	status, _ := handlers.CreateHash(req)
 
-	if status != http.StatusInternalServerError {
-		t.Fatalf("Insert link error should return a 500 error. Instead returned %d", status)
+	if status != http.StatusForbidden {
+		t.Fatalf("Invalid URL should return a 403 error. Instead returned %d", status)
 	}
 }
 
