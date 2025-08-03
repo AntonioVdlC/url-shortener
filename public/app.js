@@ -13,7 +13,7 @@ function ignite() {
     const $submitButton = document.querySelector(`[data-id="submit-button"]`);
 
     const $errorMessage = document.querySelector(
-      `[data-id="generate-error-message]`
+      `[data-id="generate-error-message"]`
     );
 
     const $noLinkText = document.querySelector(`[data-id="no-link-text"]`);
