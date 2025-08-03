@@ -69,3 +69,40 @@ This is a URL shortener service built in Go with PostgreSQL as the database. The
 - `GET /api/link?hash=XXXXX` - Retrieve original URL by hash
 - `/` - Serves static frontend
 - `/static/*` - Serves static assets from public/ directory
+
+## Frontend Development
+
+The frontend is a vanilla JavaScript Single Page Application (SPA) located in the `public/` directory. It provides a clean, responsive interface for URL shortening and redirection.
+
+### Frontend Structure
+- **public/index.html**: Main HTML template with two page states (generate/redirect)
+- **public/app.js**: Core JavaScript logic handling UI interactions and API calls
+- **public/styles.css**: CSS styling with CSS custom properties and responsive design
+
+### Frontend Architecture
+- **Routing**: Simple client-side routing based on pathname (`/` = generate page, `/*` = redirect page)
+- **State Management**: DOM-based state management using data attributes and CSS classes
+- **API Integration**: Fetch API for communicating with backend endpoints
+- **Error Handling**: Visual feedback for API errors with automatic recovery
+
+### Key Frontend Features
+- **URL Generation**: Input validation, API calls to create short URLs, copy-to-clipboard functionality
+- **URL Redirection**: Fetches original URL, displays redirect confirmation with cancel/continue options
+- **Responsive Design**: Mobile-first approach with breakpoints at 600px and 900px
+- **Interactive Elements**: Hover effects, animations, and visual feedback
+- **Accessibility**: Keyboard navigation support (Enter key to submit)
+
+### Frontend Development Patterns
+- Uses `data-id` attributes for element selection instead of classes or IDs
+- Implements page visibility toggling with `.hidden` class
+- Error states use `.opaque` class with CSS transitions for smooth UX
+- Button states (normal, loading, error, success) managed through CSS classes
+- CSS custom properties (variables) for consistent theming
+
+### Frontend Development Tips
+- All static assets are served via `/static/*` prefix
+- API expects JSON with `link` property for URL creation
+- API returns `hash` property for generated short URLs
+- Error messages are displayed via `.error-message` elements
+- Button loading states show "..." text and disable interaction
+- Copy-to-clipboard uses modern `navigator.clipboard.writeText()` API

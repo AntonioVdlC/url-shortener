@@ -17,21 +17,32 @@
   <main class="main">
     <!-- Generate Short URL -->
     <div data-page="generate" class="hidden">
-      <p class="intro">
+      <p class="intro" id="intro-text">
         Paste a valid link and click on the button to generate a shorter link that you can share and it will redirect to
         the original link.
       </p>
 
-      <input class="input-link" type="text" name="link" data-id="input-link" />
+      <label for="url-input" class="sr-only">Enter URL to shorten</label>
+      <input 
+        id="url-input"
+        class="input-link" 
+        type="url" 
+        name="link" 
+        data-id="input-link" 
+        placeholder="https://example.com/very-long-url"
+        aria-describedby="intro-text error-message"
+        autocomplete="url"
+        spellcheck="false"
+      />
 
-      <p class="error-message opaque" data-id="generate-error-message"></p>
+      <p class="error-message opaque" data-id="generate-error-message" id="error-message" role="alert" aria-live="polite"></p>
 
-      <button class="btn-primary" data-id="submit-button">Generate</button>
+      <button class="btn-primary" data-id="submit-button" type="submit" aria-describedby="intro-text">Generate</button>
 
       <p class="no-link-text" data-id="no-link-text">Once the shortened link is generated, it will be displayed here.
       </p>
-      <p class="show-link hidden" data-id="show-link"></p>
-      <p class="copied-to-clipboard opaque" data-id="copied-to-clipboard">Link copied to clipboard.</p>
+      <p class="show-link hidden" data-id="show-link" role="button" tabindex="0" aria-label="Click to copy shortened URL"></p>
+      <p class="copied-to-clipboard opaque" data-id="copied-to-clipboard" role="status" aria-live="polite">✅ Link copied to clipboard!</p>
     </div>
     <!--/Generate Short URL -->
 

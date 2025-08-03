@@ -29,16 +29,47 @@ function ignite() {
       }
     });
 
+    function validateUrl(url) {
+      try {
+        const urlObj = new URL(url);
+        return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
+      } catch {
+        return false;
+      }
+    }
+
+    function showError(message) {
+      $errorMessage.innerText = message;
+      $errorMessage.classList.remove("opaque");
+      setTimeout(() => {
+        $errorMessage.classList.add("opaque");
+      }, 4000);
+    }
+
+    function resetButton() {
+      $submitButton.innerText = "Generate";
+      $submitButton.classList.remove("error", "done", "loading");
+      $submitButton.disabled = false;
+    }
+
     $submitButton.addEventListener("click", () => {
-      const link = $linkInput.value;
+      const link = $linkInput.value.trim();
 
       if (!link) {
-        // FIXME: error handling
+        showError("Please enter a URL to shorten");
+        $linkInput.focus();
         return;
       }
 
-      $submitButton.innerText = "...";
+      if (!validateUrl(link)) {
+        showError("Please enter a valid URL (must start with http:// or https://)");
+        $linkInput.focus();
+        return;
+      }
+
+      $submitButton.innerText = "Generating...";
       $submitButton.disabled = true;
+      $submitButton.classList.add("loading");
 
       fetch("/api/link", {
         method: "POST",
@@ -50,61 +81,100 @@ function ignite() {
           }
 
           res.json().then(({ message }) => {
-            $errorMessage.innerText = message || "Error";
-            $errorMessage.classList.remove("opaque");
-
+            showError(message || "Failed to shorten URL. Please try again.");
             $submitButton.innerText = "Error";
+            $submitButton.classList.remove("loading");
             $submitButton.classList.add("error");
-
-            setTimeout(() => {
-              $errorMessage.classList.add("opaque");
-
-              $submitButton.innerText = "Generate";
-              $submitButton.classList.remove("error");
-              $submitButton.disabled = false;
-            }, 2000);
+            setTimeout(resetButton, 3000);
+          }).catch(() => {
+            showError("Failed to shorten URL. Please try again.");
+            $submitButton.innerText = "Error";
+            $submitButton.classList.remove("loading");
+            $submitButton.classList.add("error");
+            setTimeout(resetButton, 3000);
           });
         })
         .then((data) => {
-          const hash = data.hash;
-
-          if (!hash) {
-            $errorMessage.innerText = "Oops, an error has occured.";
-            $errorMessage.classList.remove("opaque");
-
+          if (!data || !data.hash) {
+            showError("Failed to generate short URL. Please try again.");
             $submitButton.innerText = "Error";
+            $submitButton.classList.remove("loading");
             $submitButton.classList.add("error");
-
-            setTimeout(() => {
-              $errorMessage.classList.add("opaque");
-
-              $submitButton.innerText = "Generate";
-              $submitButton.classList.remove("error");
-              $submitButton.disabled = false;
-            }, 2000);
-
+            setTimeout(resetButton, 3000);
             return;
           }
 
+          const shortUrl = href + data.hash;
+          
           $noLinkText.classList.add("hidden");
           $showLink.classList.remove("hidden");
+          $showLink.innerText = shortUrl;
 
-          $showLink.innerText = href + hash;
-
-          $submitButton.innerText = "Generated";
+          $submitButton.innerText = "✓ Generated";
+          $submitButton.classList.remove("loading");
           $submitButton.classList.add("done");
+          
+          // Auto-focus the result for better UX
+          setTimeout(() => {
+            $showLink.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 100);
+        }).catch(() => {
+          showError("Failed to generate short URL. Please try again.");
+          $submitButton.innerText = "Error";
+          $submitButton.classList.remove("loading");
+          $submitButton.classList.add("error");
+          setTimeout(resetButton, 3000);
         });
     });
 
-    $showLink.addEventListener("click", () => {
-      navigator.clipboard.writeText($showLink.innerText).then(() => {
-        $copiedToClipboard.classList.remove("opaque");
+    function copyToClipboard() {
+      const url = $showLink.innerText;
+      
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(url).then(() => {
+          $copiedToClipboard.classList.remove("opaque");
+          setTimeout(() => {
+            $copiedToClipboard.classList.add("opaque");
+          }, 3000);
+        }).catch(() => {
+          fallbackCopyToClipboard(url);
+        });
+      } else {
+        fallbackCopyToClipboard(url);
+      }
+    }
 
+    $showLink.addEventListener("click", copyToClipboard);
+    
+    $showLink.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        copyToClipboard();
+      }
+    });
+    
+    function fallbackCopyToClipboard(text) {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-999999px";
+      textArea.style.top = "-999999px";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      
+      try {
+        document.execCommand('copy');
+        $copiedToClipboard.classList.remove("opaque");
         setTimeout(() => {
           $copiedToClipboard.classList.add("opaque");
-        }, 2000);
-      });
-    });
+        }, 3000);
+      } catch (err) {
+        console.error('Fallback copy failed:', err);
+      }
+      
+      document.body.removeChild(textArea);
+    }
   }
   // ---
 
