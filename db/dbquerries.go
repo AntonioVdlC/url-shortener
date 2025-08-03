@@ -1,11 +1,12 @@
+//go:build !mock
 // +build !mock
 
 package db
 
 import (
 	"context"
-	"io/ioutil"
 	"log"
+	"os"
 )
 
 var insertLinkSQL []byte
@@ -15,17 +16,17 @@ var deleteOldLinksSQL []byte
 func initQuerries() {
 	var err error
 
-	insertLinkSQL, err = ioutil.ReadFile("db/sql/insert-link.sql")
+	insertLinkSQL, err = os.ReadFile("db/sql/insert-link.sql")
 	if err != nil {
 		log.Fatalf("Error while reading file 'db/sql/insert-link.sql': %v\n", err)
 	}
 
-	selectLinkSQL, err = ioutil.ReadFile("db/sql/select-link.sql")
+	selectLinkSQL, err = os.ReadFile("db/sql/select-link.sql")
 	if err != nil {
 		log.Fatalf("Error while reading file 'db/sql/select-link.sql': %v\n", err)
 	}
 
-	deleteOldLinksSQL, err = ioutil.ReadFile("db/sql/delete-links-old.sql")
+	deleteOldLinksSQL, err = os.ReadFile("db/sql/delete-links-old.sql")
 	if err != nil {
 		log.Fatalf("Error while reading file 'db/sql/delete-links-old.sql': %v\n", err)
 	}

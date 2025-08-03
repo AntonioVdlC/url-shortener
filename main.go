@@ -2,10 +2,8 @@ package main
 
 import (
 	"log"
-	"math/rand"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/joho/godotenv"
 
@@ -15,8 +13,6 @@ import (
 )
 
 func init() {
-	rand.Seed(time.Now().UnixNano())
-
 	if err := godotenv.Load(); err != nil {
 		log.Println("Error loading .env file")
 	}

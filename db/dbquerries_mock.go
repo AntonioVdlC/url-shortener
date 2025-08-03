@@ -1,3 +1,4 @@
+//go:build mock
 // +build mock
 
 package db
@@ -19,7 +20,7 @@ func SelectLink(hash string) (string, error) {
 	if hash == "notfound" {
 		return "", errors.New("Not Found")
 	}
-	
+
 	return "https://some-link", nil
 }
 
