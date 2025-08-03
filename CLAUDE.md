@@ -20,6 +20,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `go vet ./...` - Run Go's built-in static analysis
 - `go mod verify` - Verify module dependencies
 
+### Git Hooks Setup
+- `./scripts/install-hooks.sh` - Install pre-commit hooks for automatic code quality checks
+- Pre-commit hooks automatically run: formatting checks, static analysis, and dependency verification
+- To bypass hooks temporarily: `git commit --no-verify`
+
 ## Architecture Overview
 
 This is a URL shortener service built in Go with PostgreSQL as the database. The application follows a clean layered architecture:
