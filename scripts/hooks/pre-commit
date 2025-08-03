@@ -24,14 +24,18 @@ if ! command -v go &> /dev/null; then
     exit 1
 fi
 
-# 1. Check code formatting
+# 1. Check and fix code formatting
 print_status "🎨 Checking code formatting..." "$YELLOW"
 UNFORMATTED_FILES=$(gofmt -l .)
 if [ -n "$UNFORMATTED_FILES" ]; then
-    print_status "❌ The following files are not formatted:" "$RED"
+    print_status "📝 Formatting the following files:" "$YELLOW"
     echo "$UNFORMATTED_FILES"
-    print_status "Run 'go fmt ./...' to fix formatting issues" "$YELLOW"
-    exit 1
+    go fmt ./...
+    print_status "✅ Code formatting applied" "$GREEN"
+    
+    # Add the formatted files to the commit
+    git add $UNFORMATTED_FILES
+    print_status "📦 Formatted files added to commit" "$GREEN"
 else
     print_status "✅ Code formatting is correct" "$GREEN"
 fi
