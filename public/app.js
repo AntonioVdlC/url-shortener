@@ -11,6 +11,7 @@ function ignite() {
   if (page === "generate") {
     const $linkInput = document.querySelector(`[data-id="input-link"]`);
     const $submitButton = document.querySelector(`[data-id="submit-button"]`);
+    const $newLinkButton = document.querySelector(`[data-id="new-link-button"]`);
 
     const $errorMessage = document.querySelector(
       `[data-id="generate-error-message"]`
@@ -28,6 +29,8 @@ function ignite() {
         $submitButton.click();
       }
     });
+
+    $newLinkButton.addEventListener("click", resetForm);
 
     function validateUrl(url) {
       try {
@@ -50,6 +53,17 @@ function ignite() {
       $submitButton.innerText = "Generate";
       $submitButton.classList.remove("error", "done", "loading");
       $submitButton.disabled = false;
+    }
+
+    function resetForm() {
+      $linkInput.value = "";
+      $linkInput.focus();
+      resetButton();
+      $errorMessage.classList.add("opaque");
+      $showLink.classList.add("hidden");
+      $noLinkText.classList.remove("hidden");
+      $copiedToClipboard.classList.add("opaque");
+      $newLinkButton.classList.add("hidden");
     }
 
     $submitButton.addEventListener("click", () => {
@@ -113,6 +127,12 @@ function ignite() {
           $submitButton.innerText = "✓ Generated";
           $submitButton.classList.remove("loading");
           $submitButton.classList.add("done");
+          
+          // Clear input after successful generation
+          $linkInput.value = "";
+          
+          // Show "Generate New Link" button after successful generation
+          $newLinkButton.classList.remove("hidden");
           
           // Auto-focus the result for better UX
           setTimeout(() => {

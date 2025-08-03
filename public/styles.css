@@ -185,7 +185,8 @@ p {
   }
 }
 .main .btn-primary,
-.main .btn-error {
+.main .btn-error,
+.main .btn-secondary {
   outline: none;
   border: none;
   font-size: 1rem;
@@ -193,14 +194,24 @@ p {
   padding: 0.875rem 2rem;
   min-width: 160px;
   border-radius: var(--border-radius);
-  background: linear-gradient(135deg, rgb(var(--color-primary)) 0%, rgb(var(--color-primary-dark)) 100%);
-  color: rgb(var(--color-white));
   box-shadow: var(--shadow-md);
   transition: all 0.2s ease;
   cursor: pointer;
   font-family: var(--font-family);
   position: relative;
   overflow: hidden;
+}
+
+.main .btn-primary {
+  background: linear-gradient(135deg, rgb(var(--color-primary)) 0%, rgb(var(--color-primary-dark)) 100%);
+  color: rgb(var(--color-white));
+}
+
+.main .btn-secondary {
+  background: rgb(var(--color-white));
+  color: rgb(var(--color-grey-700));
+  border: 2px solid rgb(var(--color-grey-300));
+  box-shadow: var(--shadow-sm);
 }
 
 .main .btn-primary::before {
@@ -258,8 +269,34 @@ p {
   transform: translateY(0);
   box-shadow: var(--shadow);
 }
+
+.main .btn-secondary:hover:enabled,
+.main .btn-secondary:focus:enabled {
+  background: rgb(var(--color-grey-50));
+  border-color: rgb(var(--color-grey-400));
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.main .btn-secondary:active:enabled {
+  transform: translateY(0);
+  box-shadow: var(--shadow);
+}
+
+.main .btn-secondary:disabled {
+  background: rgb(var(--color-grey-100));
+  color: rgb(var(--color-grey-400));
+  border-color: rgb(var(--color-grey-200));
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
 .main .btn-group {
-  margin-top: 5vh;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
 }
 .main .no-link-text {
   margin-top: 3rem;
@@ -311,6 +348,10 @@ p {
 
 .main .show-link:hover::after {
   opacity: 1;
+}
+
+.main .btn-secondary {
+  margin-top: 1.5rem;
 }
 .main .copied-to-clipboard {
   font-size: 0.875rem;
@@ -435,11 +476,16 @@ p {
   }
   
   .main .btn-primary,
-  .main .btn-error {
+  .main .btn-error,
+  .main .btn-secondary {
     font-size: 0.875rem;
     padding: 0.75rem 1.5rem;
-    min-width: 140px;
+    min-width: 120px;
     width: auto;
+  }
+  
+  .main .btn-group {
+    gap: 0.75rem;
   }
   
   .main .show-link {
