@@ -4,10 +4,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Common Development Commands
 
-### Building and Running
+### Quick Start (Recommended)
+- `make dev-setup` - Set up local PostgreSQL database and environment
+- `make dev-start` - Start the application locally
+- `make dev-stop` - Stop the development database
+- `make help` - Show all available commands
+
+### Manual Setup
 - `go run main.go` - Run the application locally (requires DATABASE_URL environment variable)
 - `go build` - Build the binary
 - `go mod tidy` - Clean up module dependencies
+
+### Database Management
+- `make db-shell` - Connect to development database
+- `make pgadmin` - Start pgAdmin web interface (http://localhost:8081)
 
 ### Testing
 - `go test ./...` - Run all tests in the project
