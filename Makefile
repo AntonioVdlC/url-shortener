@@ -21,12 +21,21 @@ dev-stop: ## Stop local development database
 	@docker compose down
 
 # Testing
-test: ## Run tests with mock database
+test: ## Run tests (requires database)
 	@echo "🧪 Running tests..."
-	@go test ./... -tags mock
-
-test-integration: ## Run integration tests (requires running database)
-	@echo "🔗 Running integration tests..."
+	@if ! docker compose ps postgres 2>/dev/null | grep -q "Up"; then \
+		echo "❌ PostgreSQL database is not running"; \
+		echo "🚀 To start the database, run: make dev-setup"; \
+		echo "📖 Or manually: docker compose up -d postgres"; \
+		exit 1; \
+	fi
+	@if ! docker compose exec postgres pg_isready -U urluser -d url_shortener >/dev/null 2>&1; then \
+		echo "❌ PostgreSQL database is not ready"; \
+		echo "⏳ Please wait for the database to start up"; \
+		echo "🔍 Check status with: docker compose logs postgres"; \
+		exit 1; \
+	fi
+	@echo "📊 Database ready - running tests"
 	@go test ./...
 
 # Code quality

@@ -9,7 +9,6 @@ import (
 	"url-shortener/api/handlers"
 )
 
-
 func TestCreateHashEmptyBody(t *testing.T) {
 	body, _ := json.Marshal(map[string]interface{}{})
 	req, _ := http.NewRequest("POST", "/", bytes.NewReader(body))

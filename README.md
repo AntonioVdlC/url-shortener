@@ -137,8 +137,7 @@ curl http://localhost:8080/api/link?hash=abc123
 | `make dev-setup` | Set up development environment |
 | `make dev-start` | Start the application |
 | `make dev-stop` | Stop development database |
-| `make test` | Run tests with mock database |
-| `make test-integration` | Run integration tests (requires DB) |
+| `make test` | Run tests (requires database) |
 | `make build` | Build application binary |
 | `make fmt` | Format Go code |
 | `make vet` | Run static analysis |
@@ -184,20 +183,13 @@ make install-hooks
 
 ## 🧪 Testing
 
-### Unit Tests
+### Testing
 ```bash
-# Run tests with mock database
+# Run all tests (requires running database)
 make test
 
-# Run specific package tests
-go test ./utils -v
-go test ./api/handlers -v
-```
-
-### Integration Tests
-```bash
-# Requires running PostgreSQL database
-make test-integration
+# For tests without database dependency, run specific packages:
+go test ./utils -v                    # Utility tests (no DB needed)
 ```
 
 ### Test Coverage

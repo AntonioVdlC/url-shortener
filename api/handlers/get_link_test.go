@@ -44,14 +44,14 @@ func TestGetLink(t *testing.T) {
 		"link": "https://example.com",
 	})
 	createReq, _ := http.NewRequest("POST", "/", bytes.NewReader(createBody))
-	
+
 	_, response := handlers.CreateHash(createReq)
-	
+
 	// Extract hash from response
 	var createResponse map[string]string
 	json.Unmarshal([]byte(response), &createResponse)
 	hash := createResponse["hash"]
-	
+
 	// Now test getting the link
 	req := &http.Request{
 		URL: &url.URL{
