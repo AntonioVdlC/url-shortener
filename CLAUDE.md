@@ -1,0 +1,108 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Common Development Commands
+
+### Quick Start (Recommended)
+- `make dev-setup` - Set up local PostgreSQL database and environment
+- `make dev-start` - Start the application locally
+- `make dev-stop` - Stop the development database
+- `make help` - Show all available commands
+
+### Manual Setup
+- `go run main.go` - Run the application locally (requires DATABASE_URL environment variable)
+- `go build` - Build the binary
+- `go mod tidy` - Clean up module dependencies
+
+### Database Management
+- `make db-shell` - Connect to development database
+- `make pgadmin` - Start pgAdmin web interface (http://localhost:8081)
+
+### Testing
+- `go test ./...` - Run all tests in the project
+- `go test ./api/handlers` - Run tests for API handlers specifically
+- `go test ./utils` - Run utility function tests
+- `go test -v ./...` - Run tests with verbose output
+
+### Code Quality
+- `go fmt ./...` - Format all Go code
+- `go vet ./...` - Run Go's built-in static analysis
+- `go mod verify` - Verify module dependencies
+
+### Git Hooks Setup
+- `./scripts/install-hooks.sh` - Install pre-commit hooks for automatic code quality checks
+- Pre-commit hooks automatically run: formatting checks, static analysis, and dependency verification
+- To bypass hooks temporarily: `git commit --no-verify`
+
+## Architecture Overview
+
+This is a URL shortener service built in Go with PostgreSQL as the database. The application follows a clean layered architecture:
+
+### Core Components
+- **main.go**: Entry point that sets up HTTP routes, initializes database and cron jobs
+- **api/**: HTTP API layer with a single `/api/link` endpoint that handles both POST (create) and GET (retrieve) operations
+- **api/handlers/**: Request handlers for creating short URLs and retrieving original URLs
+- **db/**: Database layer with connection management and SQL query execution
+- **utils/**: Utility functions for URL validation and random string generation
+- **cron/**: Background job system for automatic link cleanup
+- **public/**: Static frontend assets (HTML, CSS, JS)
+
+### Database Design
+- Uses PostgreSQL with connection pooling via pgx/v4
+- SQL queries are stored as separate files in `db/sql/`
+- Database initialization and migration handled automatically on startup
+
+### Key Patterns
+- Handler functions return (status int, data string) tuples
+- SQL queries are loaded once at startup and reused
+- Random hash generation uses 5-character strings (~380M possible combinations)
+- URL validation prevents malicious redirects and ensures proper formatting
+
+### Environment Requirements
+- `DATABASE_URL`: PostgreSQL connection string (required)
+- `PORT`: Server port (defaults to 8080)
+- `.env` file support via godotenv
+
+### API Endpoints
+- `POST /api/link` - Create shortened URL (expects JSON: `{"Link": "https://example.com"}`)
+- `GET /api/link?hash=XXXXX` - Retrieve original URL by hash
+- `/` - Serves static frontend
+- `/static/*` - Serves static assets from public/ directory
+
+## Frontend Development
+
+The frontend is a vanilla JavaScript Single Page Application (SPA) located in the `public/` directory. It provides a clean, responsive interface for URL shortening and redirection.
+
+### Frontend Structure
+- **public/index.html**: Main HTML template with two page states (generate/redirect)
+- **public/app.js**: Core JavaScript logic handling UI interactions and API calls
+- **public/styles.css**: CSS styling with CSS custom properties and responsive design
+
+### Frontend Architecture
+- **Routing**: Simple client-side routing based on pathname (`/` = generate page, `/*` = redirect page)
+- **State Management**: DOM-based state management using data attributes and CSS classes
+- **API Integration**: Fetch API for communicating with backend endpoints
+- **Error Handling**: Visual feedback for API errors with automatic recovery
+
+### Key Frontend Features
+- **URL Generation**: Input validation, API calls to create short URLs, copy-to-clipboard functionality
+- **URL Redirection**: Fetches original URL, displays redirect confirmation with cancel/continue options
+- **Responsive Design**: Mobile-first approach with breakpoints at 600px and 900px
+- **Interactive Elements**: Hover effects, animations, and visual feedback
+- **Accessibility**: Keyboard navigation support (Enter key to submit)
+
+### Frontend Development Patterns
+- Uses `data-id` attributes for element selection instead of classes or IDs
+- Implements page visibility toggling with `.hidden` class
+- Error states use `.opaque` class with CSS transitions for smooth UX
+- Button states (normal, loading, error, success) managed through CSS classes
+- CSS custom properties (variables) for consistent theming
+
+### Frontend Development Tips
+- All static assets are served via `/static/*` prefix
+- API expects JSON with `link` property for URL creation
+- API returns `hash` property for generated short URLs
+- Error messages are displayed via `.error-message` elements
+- Button loading states show "..." text and disable interaction
+- Copy-to-clipboard uses modern `navigator.clipboard.writeText()` API

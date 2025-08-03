@@ -2,7 +2,6 @@ package db
 
 import (
 	"context"
-	"io/ioutil"
 	"log"
 	"os"
 
@@ -19,7 +18,7 @@ func Init() {
 
 	// Check needed tables are created
 	var initDone bool
-	initCheckSQL, err := ioutil.ReadFile("db/sql/init-check.sql")
+	initCheckSQL, err := os.ReadFile("db/sql/init-check.sql")
 	if err != nil {
 		log.Fatalf("Error while reading file 'db/sql/init-check.sql': %v\n", err)
 	}
@@ -32,7 +31,7 @@ func Init() {
 	// Create needed tables
 	if !initDone {
 		log.Println("Initialising tables in database ...")
-		initSQL, err := ioutil.ReadFile("db/sql/init.sql")
+		initSQL, err := os.ReadFile("db/sql/init.sql")
 		if err != nil {
 			log.Fatalf("Error while reading file 'db/sql/init.sql': %v\n", err)
 		}
