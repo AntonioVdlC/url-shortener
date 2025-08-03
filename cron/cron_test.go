@@ -99,9 +99,9 @@ func TestCleanupJobStop(t *testing.T) {
 }
 
 func TestAutoDeleteLinksJob(t *testing.T) {
-	// Test the main function that now returns a cleanup job
+	// Test the main function that now returns a cron job
 	// Use a timeout to prevent hanging
-	done := make(chan *CleanupJob, 1)
+	done := make(chan *CronJob, 1)
 
 	go func() {
 		job := AutoDeleteLinksJob()
@@ -118,10 +118,15 @@ func TestAutoDeleteLinksJob(t *testing.T) {
 			t.Fatal("Expected job to be created, got nil")
 		}
 
+		// Verify job has the correct name
+		if job.GetName() != "auto-delete-links" {
+			t.Fatalf("Expected job name 'auto-delete-links', got '%s'", job.GetName())
+		}
+
 		// Stop immediately since we don't want to wait 24 hours
 		job.Stop()
 
-		t.Log("AutoDeleteLinksJob now returns stoppable job")
+		t.Log("AutoDeleteLinksJob now returns stoppable CronJob")
 
 	case <-time.After(5 * time.Second):
 		t.Fatal("AutoDeleteLinksJob took too long to create job (>5s)")
@@ -138,12 +143,9 @@ func TestAutoDeleteLinksJobWithoutImmediateRun(t *testing.T) {
 		t.Fatal("Expected job to be created, got nil")
 	}
 
-	if job.ticker == nil {
-		t.Fatal("Expected ticker to be created")
-	}
-
-	if job.done == nil {
-		t.Fatal("Expected done channel to be created")
+	// Verify job has the correct name
+	if job.GetName() != "auto-delete-links" {
+		t.Fatalf("Expected job name 'auto-delete-links', got '%s'", job.GetName())
 	}
 
 	// Stop the job
@@ -200,4 +202,145 @@ func TestMultipleJobsAndCleanup(t *testing.T) {
 	time.Sleep(20 * time.Millisecond)
 
 	t.Log("Multiple jobs created and stopped successfully")
+}
+
+// Test the generic CronJob functionality
+func TestNewCronJob(t *testing.T) {
+	counter := 0
+	task := func() {
+		counter++
+	}
+
+	job := NewCronJob("test-job", 50*time.Millisecond, task)
+	defer job.Stop()
+
+	// Verify job was created
+	if job == nil {
+		t.Fatal("Expected job to be created, got nil")
+	}
+
+	if job.GetName() != "test-job" {
+		t.Fatalf("Expected job name 'test-job', got '%s'", job.GetName())
+	}
+
+	// Let it run a few times
+	time.Sleep(150 * time.Millisecond)
+
+	// Stop the job
+	job.Stop()
+
+	// Verify task ran at least once
+	if counter == 0 {
+		t.Fatal("Expected task to run at least once")
+	}
+
+	t.Logf("Generic CronJob ran task %d times", counter)
+}
+
+func TestNewCronJobWithImmediate(t *testing.T) {
+	counter := 0
+	task := func() {
+		counter++
+	}
+
+	// Test with immediate execution
+	job := NewCronJobWithImmediate("immediate-test", 100*time.Millisecond, task, true)
+	defer job.Stop()
+
+	// Give it a moment to run immediately
+	time.Sleep(10 * time.Millisecond)
+
+	// Should have run immediately
+	if counter == 0 {
+		t.Fatal("Expected task to run immediately")
+	}
+
+	initialCount := counter
+
+	// Let it run scheduled
+	time.Sleep(150 * time.Millisecond)
+
+	// Should have run more times
+	if counter <= initialCount {
+		t.Fatal("Expected task to run more times after initial execution")
+	}
+
+	job.Stop()
+	t.Logf("CronJob with immediate execution ran task %d times", counter)
+}
+
+func TestCronJobWithoutImmediate(t *testing.T) {
+	counter := 0
+	task := func() {
+		counter++
+	}
+
+	// Test without immediate execution
+	job := NewCronJobWithImmediate("no-immediate-test", 50*time.Millisecond, task, false)
+	defer job.Stop()
+
+	// Give it a very short time - shouldn't run immediately
+	time.Sleep(10 * time.Millisecond)
+
+	// Should not have run yet
+	if counter > 0 {
+		t.Fatal("Expected task not to run immediately when runImmediately=false")
+	}
+
+	// Let it run scheduled
+	time.Sleep(100 * time.Millisecond)
+
+	// Should have run now
+	if counter == 0 {
+		t.Fatal("Expected task to run after interval")
+	}
+
+	job.Stop()
+	t.Logf("CronJob without immediate execution ran task %d times", counter)
+}
+
+func TestAddJobAndGetRunningJobs(t *testing.T) {
+	// Clear any existing jobs first
+	Shutdown()
+
+	// Create some test jobs
+	job1 := NewCronJob("test-job-1", 1*time.Hour, func() {})
+	job2 := NewCronJob("test-job-2", 2*time.Hour, func() {})
+
+	// Add them to the tracker
+	AddJob(job1)
+	AddJob(job2)
+
+	// Get running jobs
+	jobs := GetRunningJobs()
+
+	// Verify we have the expected jobs
+	if len(jobs) != 2 {
+		t.Fatalf("Expected 2 running jobs, got %d", len(jobs))
+	}
+
+	// Verify job names
+	names := make(map[string]bool)
+	for _, job := range jobs {
+		names[job.GetName()] = true
+	}
+
+	if !names["test-job-1"] {
+		t.Fatal("Expected to find 'test-job-1' in running jobs")
+	}
+
+	if !names["test-job-2"] {
+		t.Fatal("Expected to find 'test-job-2' in running jobs")
+	}
+
+	// Clean up
+	Shutdown()
+
+	// Verify cleanup
+	jobs = GetRunningJobs()
+	if len(jobs) != 0 {
+		t.Fatalf("Expected 0 running jobs after shutdown, got %d", len(jobs))
+	}
+
+	t.Log("AddJob and GetRunningJobs work correctly")
 }
